@@ -32,7 +32,7 @@ snake = [(200, 200), (210, 200), (220, 200)]
 snakeskin = pygame.Surface((10,10))
 
 """ Adicionando uma cor em RGB"""
-snakeskin.fill((255, 255, 255))
+snakeskin.fill((53, 153, 20))
 
 mydirection = LEFT 
 
@@ -48,7 +48,7 @@ appleposition = ongrid()
 clock = pygame.time.Clock()
 
 """ Variavel com a velocidade da cobra """
-velocidade = 15
+velocidade = 12
 """ Forma de Executar o jogo """
 while True:
     """ Adicionando os fps da cobra """
@@ -61,7 +61,7 @@ while True:
         """ Aumentando a cobra """
         snake.append((0,0))
         """ Aumentando a velocidade """
-        velocidade += 2
+        velocidade += 1
 
     """ Facendo o movimento da cobra pegando a posicao anterior """
     for i in range (len(snake) - 1, 0, -1):
