@@ -1,12 +1,15 @@
 # Snake_Game
 Jogo criado em Python e utilizando a Biblioteca Pygame
 
-**Requisitos**: É necessário ter o Python e a Biblioteca Pygame instalada, com o comando ``` pip install pygame ``` você instala a biblioteca. 
+**Instalação**: É necessário ter o Python e a Biblioteca Pygame instalada, com o comando ``` pip install pygame ``` você instala a biblioteca. 
 
-**Para Rodar**: Com o comando ``` python snake.py ``` você roda o jogo.
+**Execução**: Com o comando ``` python snake.py ``` você executa o jogo e ao clicar nas teclas de movimento será iniciado a partida.
 
-**Funcionalidades**:
-- [x] Colisão entre a Cobra e a Comida.
-- [x] Aumento do tamanho e da velocidade da Cobra.
-- [ ] Game Over ao houver colisão no corpo da Cobra .
-- [ ] Mostrar o total de pontos no Final.
+**Manual**: 
+* Com as teclas **W, A, D, S** ou as teclas **Direcionais(setas)** do seu teclado, você movimenta a cobra.
+* Com tecla de **"Espaço"** você aumenta o tamanho da cobra.
+* Com tecla **B** irá finalizar a partida e será aberto o menu de Game Over.
+* Ao **Colidir** com seu próprio corpo você irá perder e será direcionado para o menu de Game Over. Tendo como opção as teclas 
+**C** para Continuar e abrir uma nova partida e a tecla **S** para Fechar o jogo.
+
+**Divirta-se!!**
