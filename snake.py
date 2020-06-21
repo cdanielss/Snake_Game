@@ -1,107 +1,219 @@
-import pygame, random
-""" Importando todas as funcionalidades """
-from pygame.locals import *
+# -*- coding: utf-8 -*-
+import pygame
+import pygame.locals
+from random import randrange
 
-""" Inicializando as variaveis de movimento """
-UP = 0
-RIGTH = 1
-DOWN = 2
-LEFT = 3
+try:
+    pygame.init()
+    print("Start")
+except:
+    print("Start")
 
-""" Gerar posicoes validas """
-def ongrid():
-    x = random.randint(0, 590)
-    y = random.randint(0, 590)
-    return (x//10 * 10, y//10 * 10)
+tamanho = 10
+largura = 600
+altura = 600
+placar = 40
+preto=(0,0,0)
+vermelho = (227,47,34)
+verde = (66,204,39)
+branco = (255,255,255)
 
-""" Funcao para fazer que a cobra coma """
-def collision(c1, c2):
-    return (c1[0] == c2[0]) and (c1[1] == c2[1])
+relogio = pygame.time.Clock()
+fundo = pygame.display.set_mode((largura, altura))
+pygame.display.set_caption("Snake")
 
-""" Iniciando o jogo """
-pygame.init()
-""" Criando a tela """
-screen = pygame.display.set_mode((600, 600))
-""" Titulo """
-pygame.display.set_caption('Snake')
+class Texto:
+    def __init__(self, msg, cor, tam):
+        self.font = pygame.font.SysFont(None, tam)
+        self.texto = self.font.render(msg, True, cor)
 
-""" A cobra sera uma lista """
-snake = [(200, 200), (210, 200), (220, 200)]
+    def exibir(self, x, y):
+        fundo.blit(self.texto, [x, y])
 
-""" Criando o visual da cobra """
-snakeskin = pygame.Surface((10,10))
+class Cobra:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.cabeca = [x,y]
+        self.comp = 1
+        self.cobra = [self.cabeca]
+        self.direcao = ""
 
-""" Adicionando uma cor em RGB"""
-snakeskin.fill((53, 153, 20))
+    def movimento(self, x, y):
+        self.cabeca = [x,y]
+        self.cobra.append([x,y])
+    
+    def cresce(self):
+        self.comp += 1
 
-mydirection = LEFT 
+    def exibir(self):
+        for XY in self.cobra:
+            pygame.draw.rect(fundo, verde, [XY[0], XY[1], tamanho, tamanho])
+    
+    def rastro(self):
+        if len(self.cobra) > self.comp:
+            del self.cobra[0]
+    
+    def morreu(self):
+        if any(Bloco == self.cabeca for Bloco in self.cobra[:-1]):
+            return True
+        return False
 
+    def reiniciar(self, x, y):
+        self.x = x
+        self.y = y
+        self.cabeca = [x,y]
+        self.comp = 1
+        self.cobra = [self.cabeca]
+    
 
-""" Criando a comida da cobra """
-apple = pygame.Surface((10,10))
-apple.fill((255, 0, 0))
+class Comida:
+    def __init__(self):
+        self.x = randrange(0,largura-tamanho, 10)
+        self.y = randrange(0,altura-tamanho-placar, 10)
+    
+    def exibir(self):
+        pygame.draw.rect(fundo, vermelho, [self.x, self.y, tamanho, tamanho])
+    
+    def reposicionar(self):
+        self.x = randrange(0,largura-tamanho, 10)
+        self.y = randrange(0,altura-tamanho-placar, 10)
 
-""" Posicao aleatoria """
-appleposition = ongrid()
+class Jogo:
+    def __init__(self):
+        self.jogando = True
+        self.perdeu = False
+        self.pos_x = randrange(0, largura-tamanho, 10)
+        self.pos_y = randrange(0, altura-tamanho-placar, 10)
+        self.velocidade_x = 0
+        self.velocidade_y = 0
+        self.pontos = 0
+        self.cobra = Cobra(self.pos_x, self.pos_y)
+        self.comida = Comida()
+    
+    def iniciando(self):
+        while self.jogando:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.jogando = False
+                    break
+                if event == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT and self.cobra.direcao != "direita":
+                        self.cobra.direcao = "esquerda"
+                    if event.key == pygame.K_RIGHT and self.cobra.direcao != "esquerda":
+                        self.cobra.direcao = "direita"
+                    if event.key == pygame.K_UP and self.cobra.direcao != "baixo":
+                        self.cobra.direcao = "cima"
+                    if event.key == pygame.K_DOWN and self.cobra.direcao != "cima":
+                        self.cobra.direcao = "baixo"
+                    if event.key == pygame.K_SPACE:
+                        self.cobra.cresce()
+            
+            if self.jogando:
+                fundo.fill(branco)
+                if self.cobra.direcao == "cima":
+                    self.pos_y -= tamanho
+                elif self.cobra.direcao == "baixo":
+                    self.pos_y += tamanho
+                elif self.cobra.direcao == "esquerda":
+                    self.pos_x -= tamanho
+                elif self.cobra.direcao == "direita":
+                    self.pos_x += tamanho
+                else:
+                    pass
 
-""" Limitando o fps da cobra ou seja a velocidade dela """
-clock = pygame.time.Clock()
-
-""" Variavel com a velocidade da cobra """
-velocidade = 12
-""" Forma de Executar o jogo """
-while True:
-    """ Adicionando os fps da cobra """
-    clock.tick(velocidade)
-
-    """ Fazendo a colisao da cobra com a comida"""
-    if collision(snake[0], appleposition):
-        """ Comida aparece em um novo lugar """
-        appleposition = ongrid()
-        """ Aumentando a cobra """
-        snake.append((0,0))
-        """ Aumentando a velocidade """
-        velocidade += 1
-
-    """ Facendo o movimento da cobra pegando a posicao anterior """
-    for i in range (len(snake) - 1, 0, -1):
-        snake[i] = (snake[i-1][0], snake[i-1][1] )
-
-    """ Movimentos da cobra """
-    if mydirection == UP:
-        snake[0] = (snake[0][0], snake[0][1] - 10)
-    if mydirection == DOWN:
-        snake[0] = (snake[0][0], snake[0][1] + 10)
-    if mydirection == RIGTH:
-        snake[0] = (snake[0][0] + 10, snake[0][1])
-    if mydirection == LEFT:
-        snake[0] = (snake[0][0] - 10, snake[0][1])
-
-    """ Funcao para fechar o jogo """
-    for event in pygame.event.get():
-        """ Pegar o botao de fechar o jogo """
-        if event.type == QUIT:
-            pygame.quit()
-        """ Lendo as teclas """
-        if event.type == KEYDOWN:
-            if event.key == K_UP:
-                mydirection = UP
-            if event.key == K_DOWN:
-                mydirection = DOWN
-            if event.key == K_RIGHT:
-                mydirection = RIGTH
-            if event.key == K_LEFT:
-                mydirection = LEFT
+                if self.pos_x == self.comida.x and self.pos_y == self.comida.y:
+                    self.comida.reposicionar()
+                    self.cobra.cresce()
+                    self.pontos += 1
                 
-    """ Limpando a tela """
-    screen.fill((0,0,0))
+                if self.pos_x + tamanho > largura:
+                    self.jogando = False
+                    self.perdeu = True
+                    self.perdido()
+                if self.pos_x < 0:
+                    self.jogando = False
+                    self.perdeu = True
+                    self.perdido()
+                if self.pos_y + tamanho > altura:
+                    self.jogando = False
+                    self.perdeu = True
+                    self.perdido()
+                if self.pos_y < 0:
+                    self.jogando = False
+                    self.perdeu = True
+                    self.perdido()
+                
+                self.cobra.movimento(self.pos_x, self.pos_y)
+                self.cobra.rastro()
 
-    """ Criando a maca em uma posicao aleatoria """
-    screen.blit(apple, appleposition)
+                if self.cobra.morreu():
+                    self.jogando = False
+                    self.perdeu = True
+                    self.perdido()
+                
+                self.cobra.exibir()
 
-    """ Criando a cobra na tela """
-    for pos in snake:
-        screen.blit(snakeskin, pos)
+                pygame.draw.rect(fundo, branco, [0, altura-placar, largura, placar])
+                
+                textoPlacar = Texto("Total:"+str(self.pontos), branco, 25)
+                textoPlacar.exibir(10, altura-30)
 
-    """ Fazer que o jogo funcione """
-    pygame.display.update()
+                self.comida.exibir()
+
+                pygame.display.update()
+
+                relogio.tick(15)
+        return 0 
+
+    def perdido(self):
+        while self.perdeu:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.jogando = False
+                    self.perdeu = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_c:
+                        self.jogando = True
+                        self.perdeu = False
+                        self.pos_x=randrange(0,largura-tamanho,10)
+                        self.pos_y=randrange(0,altura-tamanho-placar,10)
+                        self.cobra.direcao = ""
+                        self.comida.reposicionar()
+                        self.cobra.reinicia(self.pos_x, self.pos_y)
+                        self.velocidade_x=0
+                        self.velocidade_y=0
+                        self.pontos = 0
+                    if event.key == pygame.K_s:
+                        self.jogando = False
+                        self.perdeu = False
+            
+            fundo.fill(branco)
+
+            
+            textoPerdeu = Texto("Fim de jogo", vermelho, 50)
+            textoPerdeu.exibir(65, 30)
+
+
+            textoPontuacao = Texto("Pontuação Final: "+str(self.pontos), branco, 30)
+            textoPontuacao.exibir(70, 80)
+
+            pygame.draw.rect(fundo, verde, [43, 118, 139, 31])
+            pygame.draw.rect(fundo, branco, [45, 120, 135, 27])
+            textoContinuar = Texto("Continuar(C)", preto, 30)
+            textoContinuar.exibir(50, 125)
+
+            pygame.draw.rect(fundo, verde, [188, 118, 79, 31])
+            pygame.draw.rect(fundo, branco, [190, 120, 75, 27])
+            textoSair = Texto("Sair(S)", preto, 30)
+            textoSair.exibir(195, 125)
+
+            pygame.display.update()
+        return 0
+
+
+
+
+start = Jogo()
+start.iniciando()
+pygame.quit()
