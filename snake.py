@@ -3,7 +3,7 @@ import pygame
 import pygame.locals
 from random import randrange
 print("Módulos importados com sucesso")
-a = a
+
 try:
     pygame.init()
     print("Start")
